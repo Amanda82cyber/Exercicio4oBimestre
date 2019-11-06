@@ -3,6 +3,11 @@
 	
 	$sql = "SELECT COUNT(*) as qtd FROM cidade";
 	
+	if(!(empty($_POST))){
+		$nome = $_POST["nome_filtro"];
+		$sql .= " WHERE nome LIKE '%$nome%'";
+	}
+	
 	$resultado = mysqli_query($conexao,$sql);
 	
 	$linha = mysqli_fetch_assoc($resultado);

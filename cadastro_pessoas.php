@@ -93,7 +93,7 @@
 							$("#nome").val(vetor.nome);
 							$("#email").val(vetor.email);
 							$("#salario").val(vetor.salario);
-							$("#cidade").val(vetor.cod_cidade);
+							$("select[name = 'cidade']").val(vetor.cod_cidade);
 							if(vetor.sexo == "F"){
 								$("input[name = 'sexo'][value='M']").attr("checked", false);
 								$("input[name = 'sexo'][value='F']").attr("checked", true);
@@ -111,7 +111,7 @@
 					$.ajax({
 						url: "alteracao_pessoas.php",
 						type: "post",
-						data: {id: id, nome: $("#nome").val(), email: $("#email").val(), sexo: $("input[name='sexo']:checked").val(), salario: $("#salario").val(), cid: $(".id_cid").val()},
+						data: {id: id, nome: $("#nome").val(), email: $("#email").val(), sexo: $("input[name='sexo']:checked").val(), salario: $("#salario").val(), cid: $("select[name = 'cidade']").val()},
 						success: function(data){
 							if(data==1){
 								$("#msn").html("Cadastro alterado com sucesso!");
@@ -119,6 +119,7 @@
 								$("#nome").val("");
 								$("#email").val("");
 								$("#salario").val("");
+								$("select[name = 'cidade']").val("");
 								$(".alteracao").attr("class", "cadastrar");
 								$(".cadastrar").val("Cadastrar...");
 							}else{
@@ -183,7 +184,18 @@
 				$(document).on("click",".sexo",function(){
 					td = $(this);
 					sexo = td.html();
-					td.html("<input type = 'text' id = 'sexo_alterar' name = 'sexo' value = '" + sexo + "' />");
+					sexo_input = "<input type = 'radio' class = 'alterar_sexo' name = 'sexo' value = 'M' />F";
+					sexo_input += "<input type = 'radio' class = 'alterar_sexo' name = 'sexo' value = 'F' />M";
+					td.html(sexo_input);
+					
+					if(sexo == "M"){
+						$(".alterar_sexo[value = 'M']").prop("checked", false);
+						$(".alterar_sexo[value = 'F']").prop("checked", true);
+					}else{
+						$(".alterar_sexo[value = 'F']").prop("checked", false);
+						$(".alterar_sexo[value = 'M']").prop("checked", true);
+					}
+					
 					td.attr("class", "sexo_alterar");
 				});
 
@@ -193,9 +205,9 @@
 					$.ajax({
 						url: "alterar_coluna.php",
 						type: "post",
-						data: {sort: 'cadastro', coluna: 'sexo', valor: $("#sexo_alterar").val(), id: id_linha},
+						data: {sort: 'cadastro', coluna: 'sexo', valor: $(".alterar_sexo:checked").val(), id: id_linha},
 						success: function(){
-							sexo = $("#sexo_alterar").val();
+							sexo = $(".alterar_sexo:checked").val();
 							td.html(sexo);
 							td.attr("class", "sexo");
 						},
@@ -227,23 +239,29 @@
 				});
 
 				// Cidade
-
+				
 				$(document).on("click",".cidade",function(){
 					td = $(this);
-					cidade = td.html('');
-					td.html("");
-					td.attr("class", "cidade_alterar");
+					cidade = td.html();
+					select = "<select id = 'cidade_alterar'>";
+					select += $("select[name = 'cidade']").html();
+					select += "</select>";
+					td.html(select);
+					valor = $("option:contains('" + cidade + "')").val();
+					$("#cidade_alterar").val(valor);
+					td.attr("class", "cidade_alterar"); 
 				});
-
+				
 				$(document).on("blur",".cidade_alterar",function(){
 					td = $(this);
 					id_linha = $(this).closest("tr").find("button").val(); //pego a linha mais perto e busco o valor da mesma
 					$.ajax({
 						url: "alterar_coluna.php",
 						type: "post",
-						data: {sort: 'cadastro', coluna: 'cidade', valor: $("select[name = 'cidade_alterar']").val(), id: id_linha},
+						data: {sort: 'cadastro', coluna: 'cod_cidade', valor: $("#cidade_alterar").val(), id: id_linha},
 						success: function(){
-							cidade = $("#cidade_alterar").val();
+							cod_cidade = $("#cidade_alterar").val();
+							cidade = $("#cidade_alterar").find("option[value = '" + cod_cidade + "']").html();
 							td.html(cidade);
 							td.attr("class", "cidade");
 						},
@@ -272,7 +290,7 @@
 				
 				$result = mysqli_query($conexao,$consulta) or die("ERRO!" .mysqli_error($conexao));
 				
-				echo "<select name = 'cidade'>";
+				echo "Cidade: <select name = 'cidade'>";
 				
 				while($linha = mysqli_fetch_assoc($result)){
 					echo '<option value = "'.$linha["id_cidade"].'">'.$linha["nome"].'</option>';

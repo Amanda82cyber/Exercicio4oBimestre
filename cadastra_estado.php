@@ -113,6 +113,8 @@
 				
 				// ALTERAÇÃO POR CAMPO
 				
+				// Nome
+				
 				$(document).on("click",".nome",function(){
 					td = $(this);
 					nome = td.html();
@@ -131,6 +133,30 @@
 							nome = $("#nome_alterar").val();
 							td.html(nome);
 							td.attr("class", "nome");
+						},
+					});
+				});
+				
+				// UF
+				
+				$(document).on("click",".uf",function(){
+					td = $(this);
+					uf = td.html();
+					td.html("<input type = 'text' id = 'uf_alterar' name = 'uf' value = '" + uf + "' />");
+					td.attr("class", "uf_alterar");
+				});
+				
+				$(document).on("blur",".uf_alterar",function(){
+					td = $(this);
+					id_linha = $(this).closest("tr").find("button").val(); //pego a linha mais perto e busco o valor da mesma
+					$.ajax({
+						url: "alterar_coluna.php",
+						type: "post",
+						data: {sort: 'estado', coluna: 'uf', valor: $("#uf_alterar").val(), id: id_linha},
+						success: function(){
+							uf = $("#uf_alterar").val();
+							td.html(uf);
+							td.attr("class", "uf");
 						},
 					});
 				});
